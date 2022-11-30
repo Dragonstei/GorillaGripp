@@ -138,9 +138,9 @@ def robot_drop():
 def robot_reset_position():
     base_motor.run_target(60, ResetPos)
     if base_motor.angle() == ResetPos:
-        robot_cycle(LEFT,RIGHT,DirectionSpeed)
+        robot_cycle(LEFT, RIGHT, DirectionSpeed)
 
-def robot_cycle(position,position2, direction):
+def robot_cycle(position, position2, direction):
     #while base_motor.angle() != position or ei_sensor.reflection() > 32:
     while base_motor.angle() != position:
         try:
@@ -154,12 +154,15 @@ def robot_cycle(position,position2, direction):
             break
     if base_motor.angle() == position:
         base_motor.hold()
-        robot_cycle(position2,position,-direction)
+        robot_cycle(position2, position, -direction)
     print("end")
 
 def robot_detect():
     #print("start")
-    while ei_sensor.reflection() > 0:
+    #while ei_sensor.reflection() > 1:
+    while ei_sensor.rgb() > (0,0,0):
+        print(ei_sensor.rgb())
+        print(ei_sensor.color())
         #print(ei_sensor.color())
         #print(ei_sensor.rgb())
         print("ei")
@@ -172,7 +175,7 @@ def robot_detect():
 
 try:
     #robot_detect()
-    robot_cycle(LEFT,RIGHT,DirectionSpeed)
+    robot_cycle(LEFT, RIGHT, DirectionSpeed)
 except:
     print("can't start cycle")
 
