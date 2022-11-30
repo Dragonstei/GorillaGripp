@@ -85,24 +85,23 @@ def initialize_gripper():
     gripper_motor.hold()
     base_motor.hold()
 
-
-initialize_gripper() 
+initialize_gripper()
 
 # Define the three destinations for picking up and moving the wheel stacks.
 LEFT = 180
 MIDDLE = 90
 RIGHT = 0
 
-ResetPos = 50
+ResetPos = 90
 DirectionSpeed = 40
 
-def robot_beeb(amount):
+def robot_beep(amount):
     # Play three beeps to indicate that the initialization is complete.
     for i in range(amount):
         ev3.speaker.beep()
         wait(100)
 
-robot_beeb(3)
+robot_beep(3)
 
 def robot_dropoff_position():
     base_motor.run_target(60, RIGHT)
@@ -113,7 +112,7 @@ def robot_grab():
     # This function makes the robot base rotate to the indicated
     # position. There it lowers the elbow, closes the gripper, and
     # raises the elbow to pick up the object.
-    print("grab")
+    print("Grabbing egg")
     # Lower the arm.
     elbow_motor.run_target(60, -42)
     # Close the gripper to grab the wheel stack.
@@ -126,7 +125,7 @@ def robot_drop():
     # This function makes the robot base rotate to the indicated
     # position. There it lowers the elbow, opens the gripper to
     # release the object. Then it raises its arm again.
-    print("drop")
+    print("Dropping egg")
     # Lower the arm to put the wheel stack on the ground.
     elbow_motor.run_target(60, -42)
     # Open the gripper to release the wheel stack.
@@ -141,43 +140,35 @@ def robot_reset_position():
         robot_cycle(LEFT, RIGHT, DirectionSpeed)
 
 def robot_cycle(position, position2, direction):
-    #while base_motor.angle() != position or ei_sensor.reflection() > 32:
     while base_motor.angle() != position:
         try:
-            #print(base_motor.angle())
             base_motor.run(direction)
             if robot_detect() == True:
                 print("True")
-                break
+                break 
         except:
-            print("error")
+            print("Error, couldn't start cycle")
             break
     if base_motor.angle() == position:
         base_motor.hold()
         robot_cycle(position2, position, -direction)
-    print("end")
+    print("End of cycle")
 
 def robot_detect():
-    #print("start")
-    #while ei_sensor.reflection() > 1:
-    while ei_sensor.rgb() > (0,0,0):
-        print(ei_sensor.rgb())
-        print(ei_sensor.color())
-        #print(ei_sensor.color())
-        #print(ei_sensor.rgb())
-        print("ei")
-        robot_beeb(1)
+    if ei_sensor.color() != None:
+        print("RGB: ", ei_sensor.rgb())
+        print("Color: ", ei_sensor.color())
+        print("Ambient: ", ei_sensor.ambient())
+        print("Reflection: ", ei_sensor.reflection())
+        print("Egg detected")
+        robot_beep(1)
         base_motor.hold()
         robot_grab()
         return True
-        break
-    #print("end")
+    else:
+        return False
 
 try:
-    #robot_detect()
     robot_cycle(LEFT, RIGHT, DirectionSpeed)
 except:
-    print("can't start cycle")
-
-    
-
+    print("Can't start cycle")
