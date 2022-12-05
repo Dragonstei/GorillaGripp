@@ -13,7 +13,7 @@ https://education.lego.com/en-us/support/mindstorms-ev3/building-instructions#bu
 
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import Motor, TouchSensor, ColorSensor
-from pybricks.parameters import Port, Stop, Direction
+from pybricks.parameters import Port, Stop, Direction, SoundFile
 from pybricks.tools import wait
 
 # Initialize the EV3 Brick
@@ -36,8 +36,8 @@ base_motor = Motor(Port.C, Direction.COUNTERCLOCKWISE, [12, 36])
 
 # Limit the elbow and base accelerations. This results in
 # very smooth motion. Like an industrial robot.
-elbow_motor.control.limits(speed=60, acceleration=120)
-base_motor.control.limits(speed=60, acceleration=120)
+elbow_motor.control.limits(speed = 100, acceleration = 120)
+base_motor.control.limits(speed = 100, acceleration = 120)
 
 # Set up the Touch Sensor. It acts as an end-switch in the base
 # of the robot arm. It defines the starting point of the base.
@@ -75,7 +75,7 @@ base_motor.hold()
 # Stalling means that it cannot move any further. This position
 # corresponds to the closed position. Then rotate the motor
 # by 90 degrees such that the gripper is open.
-gripper_motor.run_until_stalled(200, then=Stop.COAST, duty_limit=50)
+gripper_motor.run_until_stalled(200, then = Stop.COAST, duty_limit = 30)
 
 gripper_motor.reset_angle(0)
 
@@ -96,45 +96,41 @@ ResetPos = 90
 DirectionSpeed = 40
 
 def robot_beep(amount):
-    # Play three beeps to indicate that the initialization is complete.
+    # Play x amount of beeps to indicate that a process is complete.
     for i in range(amount):
         ev3.speaker.beep()
         wait(100)
 
-robot_beep(3)
-
-def robot_dropoff_position():
-    base_motor.run_target(60, RIGHT)
-    if base_motor.angle() == RIGHT:
-        robot_drop()
+ev3.speaker.play_file(SoundFile.READY)
+ev3.speaker.say('GorillaGripper ready')
 
 def robot_grab():
     # This function makes the robot base rotate to the indicated
     # position. There it lowers the elbow, closes the gripper, and
     # raises the elbow to pick up the object.
-    print("Grabbing egg")
+    print("[2] Grabbing egg")
     # Lower the arm.
     elbow_motor.run_target(60, -42)
     # Close the gripper to grab the wheel stack.
-    gripper_motor.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
+    gripper_motor.run_until_stalled(200, then = Stop.HOLD, duty_limit = 60)
     # Raise the arm to lift the wheel stack.
     elbow_motor.run_target(60, 0)
-    robot_dropoff_position()
 
 def robot_drop():
+    base_motor.run_target(60, RIGHT)
     # This function makes the robot base rotate to the indicated
     # position. There it lowers the elbow, opens the gripper to
     # release the object. Then it raises its arm again.
-    print("Dropping egg")
+    print("[3] Dropping egg")
     # Lower the arm to put the wheel stack on the ground.
-    elbow_motor.run_target(60, -42)
+    elbow_motor.run_target(60, -45)
     # Open the gripper to release the wheel stack.
     gripper_motor.run_target(200, -900)
     # Raise the arm.
     elbow_motor.run_target(60, 0)
-    robot_reset_position()
 
 def robot_reset_position():
+    print("[4] Resetting position")
     base_motor.run_target(60, ResetPos)
     if base_motor.angle() == ResetPos:
         robot_cycle(LEFT, RIGHT, DirectionSpeed)
@@ -143,27 +139,26 @@ def robot_cycle(position, position2, direction):
     while base_motor.angle() != position:
         try:
             base_motor.run(direction)
-            if robot_detect() == True:
-                print("True")
+            if robot_detect():
                 break 
         except:
-            print("Error, couldn't start cycle")
+            print("[!] Error, couldn't move robot arm")
             break
     if base_motor.angle() == position:
         base_motor.hold()
         robot_cycle(position2, position, -direction)
-    print("End of cycle")
+    print("End of robot cycle")
 
 def robot_detect():
-    if ei_sensor.color() != None:
-        print("RGB: ", ei_sensor.rgb())
-        print("Color: ", ei_sensor.color())
-        print("Ambient: ", ei_sensor.ambient())
-        print("Reflection: ", ei_sensor.reflection())
-        print("Egg detected")
+    #[Stan] rgb(0, 0, 0) is too sensitive, (2, 2, 2) works in a light environment. reflection() adds a red light to the camera, can cause confusion with RGB detection
+    # Ambient can be used to set the detection values for seperate environments. Ex. a dark ambient room where ambient() < 10 can use different detection values than ambient() > 10
+    if ei_sensor.color():
+        print("[1] Egg detected")
         robot_beep(1)
         base_motor.hold()
         robot_grab()
+        robot_drop()
+        robot_reset_position()
         return True
     else:
         return False
@@ -171,4 +166,4 @@ def robot_detect():
 try:
     robot_cycle(LEFT, RIGHT, DirectionSpeed)
 except:
-    print("Can't start cycle")
+    print("[!] Can't start cycle")
