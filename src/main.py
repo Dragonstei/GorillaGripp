@@ -1,11 +1,5 @@
 #!/usr/bin/env pybricks-micropython
-# Make sure to put the line above as the first line of code
-
-# GorillaGripp 2022 - Werkplaatsproject S1
-# Stan Boer
-# Rik van Daal
-# Jeremy de Kroon
-# Andy Vos
+# Make sure to put the line above as the first line of code, or else the EV3 will not work
 
 # [Stan] Ideas to improve software:
 # Make use of the cmd and sys library to create an environment in a terminal
