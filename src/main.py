@@ -14,7 +14,7 @@ import robot
 # [Stan] Explaination on writing a main function: https://realpython.com/python-main-function/
 def main():
     # [Stan] Directions and postions should be stored more neatly
-    LEFT = 180
+    LEFT = 230 # 180 degrees left from endstop
     RIGHT = 0
     DirectionSpeed = 40
 

@@ -5,8 +5,8 @@ from pybricks.parameters import Port, Stop, Direction, SoundFile
 from pybricks.tools import wait
 
 # [Stan] Directions and postions should be stored more neatly
-LEFT = 180
-MIDDLE = 90
+LEFT = 230 # 180 degrees left from endstop
+MIDDLE = 115 # middle between 230 and 0
 RIGHT = 0
 
 ResetPos = 90
@@ -70,6 +70,7 @@ class Robot(EV3Brick):
         if self.egg_sensor.color():
             print("[1] Egg detected")
             self.speaker.beep()
+            wait(300)
             self.base_motor.hold()
             self.grab()
             self.drop()
@@ -81,14 +82,14 @@ class Robot(EV3Brick):
     def grab(self):
         print("[2] Grabbing egg")
         self.elbow_motor.run_target(60, -40)
-        self.gripper_motor.run_until_stalled(200, then = Stop.HOLD, duty_limit = 60)
+        self.gripper_motor.run_until_stalled(200, then = Stop.HOLD, duty_limit = 50)
         self.elbow_motor.run_target(80, 0)
 
     def drop(self):
         self.base_motor.run_target(60, RIGHT)
         print("[3] Dropping egg")
         self.elbow_motor.run_target(60, -40)
-        self.gripper_motor.run_target(200, -900)
+        self.gripper_motor.run_target(200, -1000)
         self.elbow_motor.run_target(80, 0)
 
     def reset(self):
